@@ -31,3 +31,8 @@ Icon
 ._*
 .Spotlight-V100
 .Trashes
+
+# certs etc
+certs/
+*.key
+*.crt

@@ -48,5 +48,13 @@ func (c *Config) ValidateConfig() error {
 		return fmt.Errorf("jitter must be between 0 and 100")
 	}
 
+	if c.TlsCert == "" {
+		return fmt.Errorf("tls cert cannot be empty")
+	}
+
+	if c.TlsKey == "" {
+		return fmt.Errorf("tls cert cannot be empty")
+	}
+
 	return nil
 }

@@ -25,5 +25,6 @@ func main() {
 	log.Printf("-> Delay: %v\n", cfg.Timing.Delay.Duration)
 	log.Printf("-> Jitter: %d%%\n", cfg.Timing.Jitter)
 	log.Printf("-> Starting Protocol: %s\n", cfg.Protocol)
-
+	log.Printf("-> Cert location: %s\n", cfg.TlsCert)
+	log.Printf("-> Key location: %s\n", cfg.TlsKey)
 }
