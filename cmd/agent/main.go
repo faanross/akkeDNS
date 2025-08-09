@@ -1,17 +1,29 @@
 package main
 
-import "github.com/faanross/akkeDNS/internals/models"
+import (
+	"flag"
+	"github.com/faanross/akkeDNS/internals/config"
+	"log"
+)
+
+const pathToYAML = "./configs/config.yaml"
 
 func main() {
-	agentConfig := models.AgentConfig{
-		Protocol:   models.ProtocolDNS,
-		ServerAddr: "127.0.0.1:6565",
-		AgentAddr:  "127.0.0.1:0",
+	// Command line flag for config file path
+	configPath := flag.String("config", pathToYAML, "path to configuration file")
+	flag.Parse()
+
+	// Load configuration
+	cfg, err := config.LoadConfig(*configPath)
+	if err != nil {
+		log.Fatalf("Failed to load config: %v", err)
 	}
 
-	_, err := models.NewCommunicator(agentConfig)
-	if err != nil {
-		panic(err)
-	}
+	log.Printf("Loaded configuration:\n")
+	log.Printf("-> Client: %s\n", cfg.ClientAddr)
+	log.Printf("-> Server: %s\n", cfg.ServerAddr)
+	log.Printf("-> Delay: %v\n", cfg.Timing.Delay.Duration)
+	log.Printf("-> Jitter: %d%%\n", cfg.Timing.Jitter)
+	log.Printf("-> Starting Protocol: %s\n", cfg.Protocol)
 
 }
