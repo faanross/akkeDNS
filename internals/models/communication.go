@@ -16,14 +16,10 @@ type AgentCommunicator interface {
 	Close() error
 }
 
-// Handler processes incoming messages
-// type Handler func(ctx context.Context, msg Message) (Message, error)
-
 // Server defines the contract for protocol servers
 type Server interface {
 	// Start begins listening for requests
-	// Start(ctx context.Context, handler Handler) error
-	Start(ctx context.Context) error
+	Start() error
 
 	// Stop gracefully shuts down the server
 	Stop() error
