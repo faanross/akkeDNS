@@ -2,13 +2,13 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"flag"
 	"github.com/faanross/akkeDNS/internals/config"
 	"github.com/faanross/akkeDNS/internals/models"
-	"github.com/faanross/akkeDNS/internals/server/server_https"
-	"github.com/faanross/akkeDNS/internals/types"
+	"github.com/faanross/akkeDNS/internals/runloop"
 	"log"
+	"os"
+	"os/signal"
 )
 
 const pathToYAML = "./configs/config.yaml"
@@ -36,23 +36,27 @@ func main() {
 	}
 	defer comm.Close()
 
-	// Send a test message
-	msg := types.Message{
-		Data: []byte("Hello from client"),
-	}
+	// NEW LOGIC HERE FOLLOWING RUNLOOP INTEGRATION
 
-	log.Printf("Sending request to %s server...", cfg.Protocol)
-	response, err := comm.Send(context.Background(), msg)
-	if err != nil {
-		log.Fatalf("Failed to send message: %v", err)
-	}
+	// Create context for cancellation
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
-	// Parse and display response
-	var httpsResp server_https.HTTPSResponse
-	if err := json.Unmarshal(response.Data, &httpsResp); err != nil {
-		log.Fatalf("Failed to parse response: %v", err)
-	}
+	// Start run loop in goroutine
+	go func() {
+		log.Printf("Starting %s client run loop", cfg.Protocol)
+		log.Printf("Delay: %v, Jitter: %d%%", cfg.Timing.Delay.Duration, cfg.Timing.Jitter)
 
-	log.Printf("Received response: change=%v", httpsResp.Change)
+		if err := runloop.RunLoopHTTPS(ctx, comm, cfg.Timing.Delay.Duration, cfg.Timing.Jitter); err != nil {
+			log.Printf("Run loop error: %v", err)
+		}
+	}()
 
+	// Wait for interrupt signal
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, os.Interrupt)
+	<-sigChan
+
+	log.Println("Shutting down client...")
+	cancel() // This will cause the run loop to exit
 }
