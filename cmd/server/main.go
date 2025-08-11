@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"github.com/faanross/akkeDNS/internals/config"
-	"github.com/faanross/akkeDNS/internals/server/server_https"
+	"github.com/faanross/akkeDNS/internals/models"
 	"log"
 	"os"
 	"os/signal"
@@ -30,8 +30,11 @@ func main() {
 		TlsKey:     cfg.TlsKey,
 	}
 
-	// Create server
-	server := server_https.NewHTTPSServer(&serverCfg)
+	// Create server using interface's factory function
+	server, err := models.NewServer(serverCfg)
+	if err != nil {
+		log.Fatalf("Failed to create server: %v", err)
+	}
 
 	// Start the server in own goroutine
 	go func() {

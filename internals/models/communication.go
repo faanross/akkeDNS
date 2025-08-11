@@ -1,16 +1,14 @@
 package models
 
-import "context"
-
-// Message represents the data exchanged between client and server
-type Message struct {
-	Data []byte
-}
+import (
+	"context"
+	"github.com/faanross/akkeDNS/internals/types"
+)
 
 // AgentCommunicator defines the contract for any communication protocol
 type AgentCommunicator interface {
 	// Send sends a message and waits for a response
-	Send(ctx context.Context, msg Message) (Message, error)
+	Send(ctx context.Context, msg types.Message) (types.Message, error)
 
 	// Close gracefully shuts down the communicator
 	Close() error
