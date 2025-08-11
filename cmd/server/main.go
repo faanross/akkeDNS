@@ -26,6 +26,8 @@ func main() {
 	serverCfg := config.Config{
 		Protocol:   cfg.Protocol,
 		ServerAddr: cfg.ServerAddr,
+		TlsCert:    cfg.TlsCert,
+		TlsKey:     cfg.TlsKey,
 	}
 
 	// Create server
@@ -49,5 +51,5 @@ func main() {
 	if err := server.Stop(); err != nil {
 		log.Printf("Error stopping server: %v", err)
 	}
-	
+
 }

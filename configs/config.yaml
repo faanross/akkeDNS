@@ -8,5 +8,5 @@ timing:
 
 protocol: "https"
 
-tls_key: "./certs/server.crt"
-tls_cert: "./certs/server.key"
+tls_key: "./certs/server.key"
+tls_cert: "./certs/server.crt"
