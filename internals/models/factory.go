@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/faanross/akkeDNS/internals/agent/agent_https"
 	"github.com/faanross/akkeDNS/internals/config"
+	"github.com/faanross/akkeDNS/internals/server/server_dns"
 	"github.com/faanross/akkeDNS/internals/server/server_https"
 )
 
@@ -25,7 +26,7 @@ func NewServer(cfg config.Config) (Server, error) {
 	case "https":
 		return server_https.NewHTTPSServer(&cfg), nil
 	case "dns":
-		return nil, fmt.Errorf("DNS server not yet implemented")
+		return server_dns.NewDNSServer(&cfg), nil
 	default:
 		return nil, fmt.Errorf("unsupported protocol: %v", cfg.Protocol)
 	}
