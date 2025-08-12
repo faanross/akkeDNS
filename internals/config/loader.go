@@ -22,7 +22,7 @@ func LoadConfig(path string) (*Config, error) {
 		return nil, fmt.Errorf("parsing config file: %w", err)
 	}
 
-	// Optional, but good practive -> Validate the configuration
+	// Optional, but good proactive -> Validate the configuration
 	if err := cfg.ValidateConfig(); err != nil {
 		return nil, fmt.Errorf("invalid configuration: %w", err)
 	}
@@ -40,7 +40,7 @@ func (c *Config) ValidateConfig() error {
 		return fmt.Errorf("server address cannot be empty")
 	}
 
-	if c.Timing.Delay.Duration <= 0 {
+	if c.Timing.Delay <= 0 {
 		return fmt.Errorf("delay must be positive")
 	}
 

@@ -22,16 +22,8 @@ func main() {
 		log.Fatalf("Failed to load config: %v", err)
 	}
 
-	// Create server config
-	serverCfg := config.Config{
-		Protocol:   cfg.Protocol,
-		ServerAddr: cfg.ServerAddr,
-		TlsCert:    cfg.TlsCert,
-		TlsKey:     cfg.TlsKey,
-	}
-
 	// Create server using interface's factory function
-	server, err := models.NewServer(serverCfg)
+	server, err := models.NewServer(cfg)
 	if err != nil {
 		log.Fatalf("Failed to create server: %v", err)
 	}

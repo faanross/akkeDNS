@@ -24,30 +24,21 @@ func main() {
 		log.Fatalf("Failed to load config: %v", err)
 	}
 
-	commCfg := config.AgentConfig{
-		Protocol:   cfg.Protocol,
-		ServerAddr: cfg.ServerAddr,
-		AgentAddr:  cfg.ClientAddr,
-	}
-
-	comm, err := models.NewCommunicator(commCfg)
+	comm, err := models.NewAgent(cfg)
 	if err != nil {
 		log.Fatalf("Failed to create communicator: %v", err)
 	}
-	defer comm.Close()
-
-	// NEW LOGIC HERE FOLLOWING RUNLOOP INTEGRATION
 
 	// Create context for cancellation
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	// Start run loop in goroutine
+	//Start run loop in goroutine
 	go func() {
 		log.Printf("Starting %s client run loop", cfg.Protocol)
-		log.Printf("Delay: %v, Jitter: %d%%", cfg.Timing.Delay.Duration, cfg.Timing.Jitter)
+		log.Printf("Delay: %v, Jitter: %d%%", cfg.Timing.Delay, cfg.Timing.Jitter)
 
-		if err := runloop.RunLoopHTTPS(ctx, comm, cfg.Timing.Delay.Duration, cfg.Timing.Jitter); err != nil {
+		if err := runloop.RunLoop(ctx, comm, cfg); err != nil {
 			log.Printf("Run loop error: %v", err)
 		}
 	}()

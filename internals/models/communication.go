@@ -2,16 +2,12 @@ package models
 
 import (
 	"context"
-	"github.com/faanross/akkeDNS/internals/types"
 )
 
-// AgentCommunicator defines the contract for any communication protocol
-type AgentCommunicator interface {
+// Agent defines the contract for any communication protocol
+type Agent interface {
 	// Send sends a message and waits for a response
-	Send(ctx context.Context, msg types.Message) (types.Message, error)
-
-	// Close gracefully shuts down the communicator
-	Close() error
+	Send(ctx context.Context) ([]byte, error)
 }
 
 // Server defines the contract for protocol servers

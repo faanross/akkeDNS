@@ -3,15 +3,15 @@ package runloop
 import (
 	"context"
 	"encoding/json"
+	"github.com/faanross/akkeDNS/internals/config"
 	"github.com/faanross/akkeDNS/internals/models"
 	"github.com/faanross/akkeDNS/internals/server/server_https"
-	"github.com/faanross/akkeDNS/internals/types"
 	"github.com/faanross/akkeDNS/internals/utils"
 	"log"
 	"time"
 )
 
-func RunLoopHTTPS(ctx context.Context, comm models.AgentCommunicator, delay time.Duration, jitter int) error {
+func RunLoop(ctx context.Context, comm models.Agent, cfg *config.Config) error {
 
 	for {
 		// Check if context is cancelled
@@ -21,12 +21,7 @@ func RunLoopHTTPS(ctx context.Context, comm models.AgentCommunicator, delay time
 		default:
 		}
 
-		// Send request
-		msg := types.Message{
-			Data: []byte("GET request"),
-		}
-
-		response, err := comm.Send(ctx, msg)
+		response, err := comm.Send(ctx)
 		if err != nil {
 			log.Printf("Error sending request: %v", err)
 			return err
@@ -34,14 +29,14 @@ func RunLoopHTTPS(ctx context.Context, comm models.AgentCommunicator, delay time
 
 		// Parse and display response
 		var httpsResp server_https.HTTPSResponse
-		if err := json.Unmarshal(response.Data, &httpsResp); err != nil {
+		if err := json.Unmarshal(response, &httpsResp); err != nil {
 			log.Fatalf("Failed to parse response: %v", err)
 		}
 
 		log.Printf("Received response: change=%v", httpsResp.Change)
 
 		// Calculate sleep duration with jitter
-		sleepDuration := utils.CalculateSleepDuration(delay, jitter)
+		sleepDuration := utils.CalculateSleepDuration(time.Duration(cfg.Timing.Delay), cfg.Timing.Jitter)
 		log.Printf("Sleeping for %v", sleepDuration)
 
 		// Sleep with cancellation support
