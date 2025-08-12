@@ -27,13 +27,22 @@ func RunLoop(ctx context.Context, comm models.Agent, cfg *config.Config) error {
 			return err
 		}
 
-		// Parse and display response
-		var httpsResp server_https.HTTPSResponse
-		if err := json.Unmarshal(response, &httpsResp); err != nil {
-			log.Fatalf("Failed to parse response: %v", err)
-		}
+		// BASED ON PROTOCOL, HANDLE PARSING DIFFERENTLY
 
-		log.Printf("Received response: change=%v", httpsResp.Change)
+		switch cfg.Protocol {
+		case "https":
+			// Parse and display response
+			var httpsResp server_https.HTTPSResponse
+			if err := json.Unmarshal(response, &httpsResp); err != nil {
+				log.Fatalf("Failed to parse response: %v", err)
+			}
+
+			log.Printf("Received response: change=%v", httpsResp.Change)
+		case "dns":
+			ipAddr := string(response)
+			log.Printf("Received response: IP=%v", ipAddr)
+
+		}
 
 		// Calculate sleep duration with jitter
 		sleepDuration := utils.CalculateSleepDuration(time.Duration(cfg.Timing.Delay), cfg.Timing.Jitter)
