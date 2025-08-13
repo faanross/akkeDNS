@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"github.com/faanross/akkeDNS/internals/config"
+	"github.com/faanross/akkeDNS/internals/control"
 	"github.com/faanross/akkeDNS/internals/models"
 	"log"
 	"os"
@@ -21,6 +22,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to load config: %v", err)
 	}
+	
+	// Load our control API
+	control.StartControlAPI()
 
 	// Create server using interface's factory function
 	server, err := models.NewServer(cfg)

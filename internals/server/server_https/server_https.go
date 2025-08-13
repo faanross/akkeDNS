@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/faanross/akkeDNS/internals/config"
+	"github.com/faanross/akkeDNS/internals/control"
 	"github.com/go-chi/chi/v5"
 	"log"
 	"net/http"
@@ -54,11 +55,16 @@ func RootHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("Endpoint %s has been hit by agent\n", r.URL.Path)
 
-	// Create response with change set to false
+	// Check if we should transition
+	shouldChange := control.Manager.CheckAndReset()
 	response := HTTPSResponse{
-		Change: false,
+		Change: shouldChange,
 	}
-
+	if shouldChange {
+		log.Printf("HTTPS: Sending transition signal (change=true)")
+	} else {
+		log.Printf("HTTPS: Normal response (change=false)")
+	}
 	// Set content type to JSON
 	w.Header().Set("Content-Type", "application/json")
 
