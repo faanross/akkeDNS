@@ -22,21 +22,42 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to load config: %v", err)
 	}
-	
+
 	// Load our control API
 	control.StartControlAPI()
 
-	// Create server using interface's factory function
-	server, err := models.NewServer(cfg)
+	// Create BOTH servers regardless of config
+	log.Printf("Starting both protocol servers on %s", cfg.ServerAddr)
+
+	// Create HTTPS server
+	httpsCfg := *cfg
+	httpsCfg.Protocol = "https"
+	httpsServer, err := models.NewServer(&httpsCfg)
 	if err != nil {
-		log.Fatalf("Failed to create server: %v", err)
+		log.Fatalf("Failed to create HTTPS server: %v", err)
 	}
 
-	// Start the server in own goroutine
+	// Create DNS server
+	dnsCfg := *cfg
+	dnsCfg.Protocol = "dns"
+	dnsServer, err := models.NewServer(&dnsCfg)
+	if err != nil {
+		log.Fatalf("Failed to create DNS server: %v", err)
+	}
+
+	// Start HTTPS server in goroutine
 	go func() {
-		log.Printf("Starting %s server on %s", cfg.Protocol, cfg.ServerAddr)
-		if err := server.Start(); err != nil {
-			log.Fatalf("Server error: %v", err)
+		log.Printf("Starting HTTPS server on %s (TCP)", cfg.ServerAddr)
+		if err := httpsServer.Start(); err != nil {
+			log.Fatalf("HTTPS server error: %v", err)
+		}
+	}()
+
+	// Start DNS server in goroutine
+	go func() {
+		log.Printf("Starting DNS server on %s (UDP)", cfg.ServerAddr)
+		if err := dnsServer.Start(); err != nil {
+			log.Fatalf("DNS server error: %v", err)
 		}
 	}()
 
@@ -46,9 +67,14 @@ func main() {
 	<-sigChan
 
 	// Graceful shutdown
-	log.Println("Shutting down server...")
-	if err := server.Stop(); err != nil {
-		log.Printf("Error stopping server: %v", err)
+	log.Println("Shutting down both servers...")
+
+	if err := httpsServer.Stop(); err != nil {
+		log.Printf("Error HTTPS stopping server: %v", err)
+	}
+
+	if err := dnsServer.Stop(); err != nil {
+		log.Printf("Error HTTPS stopping server: %v", err)
 	}
 
 }
